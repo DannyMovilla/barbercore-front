@@ -12,7 +12,7 @@ export function useLogout() {
 
     await supabase.auth.signOut();       // Cierra sesión en Supabase
     logout();                            // Limpia Zustand + localStorage
-    router.push("/login");               // Redirige
+    router.push("/");               // Redirige
   };
 
   return logoutUser;

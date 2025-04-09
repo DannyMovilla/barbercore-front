@@ -2,9 +2,10 @@
 
 import {
   BadgeCheck,
-  Bell,
   ChevronsUpDown,
   LogOut,
+  Moon,
+  Sun,
 } from "lucide-react"
 
 import {
@@ -28,13 +29,14 @@ import {
 } from "@/components/ui/sidebar"
 import { User } from "@/types/user"
 import { useLogout } from "@/hooks/useLogout"
+import { useTheme } from "next-themes"
 
 export function NavUser({
   user,
 }: {
   user: User | null
 }) {
-
+  const { theme, setTheme } = useTheme();
   const logout = useLogout();
   const { isMobile } = useSidebar()
 
@@ -80,9 +82,9 @@ export function NavUser({
                 <BadgeCheck />
                 Account
               </DropdownMenuItem>
-              <DropdownMenuItem disabled>
-                <Bell />
-                Notifications
+              <DropdownMenuItem onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>
+                {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+                {theme === "dark" ? "Light" : "Dark"}
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
