@@ -10,8 +10,7 @@ export interface User {
   telefono?: string;
   rol?: string;
   password?: string;
-  createdAt?: Date;
-  updatedAt?: Date;
+  created_at?: Date;
 }
 
 export type RolUsuario = "cliente" | "barbero" | "admin"

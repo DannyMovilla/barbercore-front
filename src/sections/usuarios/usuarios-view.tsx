@@ -22,54 +22,28 @@ import { User } from "@/types/user";
 import { Avatar, AvatarFallback } from "@radix-ui/react-avatar";
 import { Pencil, Plus, Search, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { useState } from "react";
-
-// Datos de ejemplo
-const usuariosIniciales: User[] = [
-  {
-    id: "1",
-    nombre: "Carlos Rodríguez",
-    email: "carlos@ejemplo.com",
-    telefono: "555-123-4567",
-    rol: "cliente",
-  },
-  {
-    id: "2",
-    nombre: "María González",
-    email: "maria@ejemplo.com",
-    telefono: "555-987-6543",
-    rol: "cliente",
-  },
-  {
-    id: "3",
-    nombre: "Juan Pérez",
-    email: "juan@ejemplo.com",
-    telefono: "555-456-7890",
-    rol: "barbero",
-  },
-  {
-    id: "4",
-    nombre: "Ana López",
-    email: "ana@ejemplo.com",
-    telefono: "555-789-0123",
-    rol: "barbero",
-  },
-  {
-    id: "5",
-    nombre: "Roberto Martínez",
-    email: "roberto@ejemplo.com",
-    telefono: "555-234-5678",
-    rol: "admin",
-  },
-];
+import { useEffect, useState } from "react";
+import { UsuarioDrawer } from "./components/usuario-drawer";
+import { obtenerUsuarios } from "@/lib/actions/users";
+import { useAuthStore } from "@/lib/store/store";
 
 export function UsuariosView() {
-  const [usuarios, setUsuarios] = useState<User[]>(usuariosIniciales);
-  /* const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const { user } = useAuthStore();
+
+  const [usuarios, setUsuarios] = useState<User[]>([]);
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
-  const [currentUsuario, setCurrentUsuario] = useState<User | null>(null); */
+  const [currentUsuario, setCurrentUsuario] = useState<User | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [activeTab, setActiveTab] = useState<string>("todos");
+
+  useEffect(() => {
+    async function fetchServicios() {
+      const data = await obtenerUsuarios(user?.peluqueria_id ?? "");
+      setUsuarios(data);
+    }
+    fetchServicios();
+  }, [user?.peluqueria_id]);
 
   // Filtrar usuarios basados en el término de búsqueda y la pestaña activa
   const filteredUsuarios = usuarios.filter((usuario) => {
@@ -85,7 +59,7 @@ export function UsuariosView() {
     return coincideRol && coincideBusqueda;
   });
 
-  /* // Función para crear un nuevo usuario
+  // Función para crear un nuevo usuario
   const handleCreate = (usuario: Omit<User, "id" | "fechaRegistro">) => {
     const newUsuario = {
       ...usuario,
@@ -93,22 +67,24 @@ export function UsuariosView() {
       fechaRegistro: new Date(),
       // Aseguramos que los clientes no tengan contraseña almacenada
       password: usuario.rol === "cliente" ? undefined : usuario.password,
-    }
-    setUsuarios([...usuarios, newUsuario])
-    setIsCreateOpen(false)
-  }
+    };
+    setUsuarios([...usuarios, newUsuario]);
+    setIsCreateOpen(false);
+  };
 
   // Función para actualizar un usuario existente
   const handleUpdate = (updatedUsuario: User) => {
     // Si el rol cambia a cliente, eliminamos la contraseña
     if (updatedUsuario.rol === "cliente") {
-      updatedUsuario.password = undefined
+      updatedUsuario.password = undefined;
     }
 
-    setUsuarios(usuarios.map((u) => (u.id === updatedUsuario.id ? updatedUsuario : u)))
-    setIsEditOpen(false)
-    setCurrentUsuario(null)
-  } */
+    setUsuarios(
+      usuarios.map((u) => (u.id === updatedUsuario.id ? updatedUsuario : u))
+    );
+    setIsEditOpen(false);
+    setCurrentUsuario(null);
+  };
 
   // Función para eliminar un usuario
   const handleDelete = (id: string) => {
@@ -119,9 +95,8 @@ export function UsuariosView() {
 
   // Función para abrir el drawer de edición
   const openEditDrawer = (usuario: User) => {
-    console.log(usuario);
-    // setCurrentUsuario(usuario)
-    /* setIsEditOpen(true); */
+    setCurrentUsuario(usuario);
+    setIsEditOpen(true);
   };
 
   // Obtener las iniciales del nombre para el avatar
@@ -161,12 +136,14 @@ export function UsuariosView() {
       <Card>
         <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <CardTitle>Usuarios</CardTitle>
+            <CardTitle>
+              <h2 className="text-2xl font-bold">Usuarios</h2>
+            </CardTitle>
             <CardDescription>
               Administra los usuarios de tu barbería
             </CardDescription>
           </div>
-          <Button >
+          <Button onClick={() => setIsCreateOpen(true)}>
             <Plus className="mr-2 h-4 w-4" /> Nuevo Usuario
           </Button>
         </CardHeader>
@@ -180,25 +157,25 @@ export function UsuariosView() {
             >
               <TabsList>
                 <TabsTrigger value="todos">
-                  Todos{" "}
+                  Todos
                   <Badge variant="outline" className="ml-2">
                     {countByRole.todos}
                   </Badge>
                 </TabsTrigger>
                 <TabsTrigger value="cliente">
-                  Clientes{" "}
+                  Clientes
                   <Badge variant="outline" className="ml-2">
                     {countByRole.cliente}
                   </Badge>
                 </TabsTrigger>
                 <TabsTrigger value="barbero">
-                  Barberos{" "}
+                  Barberos
                   <Badge variant="outline" className="ml-2">
                     {countByRole.barbero}
                   </Badge>
                 </TabsTrigger>
                 <TabsTrigger value="admin">
-                  Admins{" "}
+                  Admins
                   <Badge variant="outline" className="ml-2">
                     {countByRole.admin}
                   </Badge>
@@ -248,7 +225,7 @@ export function UsuariosView() {
                       <TableCell>
                         <div className="flex items-center gap-3">
                           <Avatar>
-                            <AvatarFallback className="bg-primary/10">
+                            <AvatarFallback className="bg-primary/10 w-9 h-9 rounded-full flex items-center justify-center text-sm font-medium">
                               {getInitials(usuario.nombre || "")}
                             </AvatarFallback>
                           </Avatar>
@@ -270,7 +247,7 @@ export function UsuariosView() {
                         </Badge>
                       </TableCell>
                       <TableCell className="hidden lg:table-cell">
-                        {usuario.createdAt?.toLocaleDateString()}
+                        {usuario.created_at && new Date(usuario.created_at).toLocaleDateString()}
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">
@@ -300,6 +277,41 @@ export function UsuariosView() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Drawer para crear usuario */}
+      <UsuarioDrawer
+        open={isCreateOpen}
+        onOpenChange={setIsCreateOpen}
+        onSubmit={handleCreate}
+        title="Crear Nuevo Usuario"
+      />
+
+      {/* Drawer para editar usuario */}
+      {isEditOpen && currentUsuario && (
+        <UsuarioDrawer
+          open={isEditOpen}
+          onOpenChange={setIsEditOpen}
+          onSubmit={handleUpdate}
+          title="Editar Usuario"
+          usuario={
+            currentUsuario?.id &&
+            currentUsuario?.nombre &&
+            currentUsuario?.email &&
+            currentUsuario?.telefono &&
+            (currentUsuario?.rol === "cliente" ||
+              currentUsuario?.rol === "barbero" ||
+              currentUsuario?.rol === "admin")
+              ? {
+                  id: currentUsuario.id,
+                  nombre: currentUsuario.nombre,
+                  email: currentUsuario.email,
+                  telefono: currentUsuario.telefono,
+                  rol: currentUsuario.rol,
+                }
+              : null
+          }
+        />
+      )}
     </div>
   );
 }
