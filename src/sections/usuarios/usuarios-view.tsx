@@ -144,7 +144,7 @@ export function UsuariosView() {
             </CardDescription>
           </div>
           <Button onClick={() => setIsCreateOpen(true)}>
-            <Plus className="mr-2 h-4 w-4" /> Nuevo Usuario
+            <Plus className="mr-2 h-4 w-4" /> Nuevo Usuario +
           </Button>
         </CardHeader>
         <CardContent>
